@@ -1,0 +1,29 @@
+---
+- name: 開発環境構築
+  hosts: all
+  remote_user: vagrant
+  
+  tasks:
+    - name: rbenv インストール
+      git:
+        repo: https://github.com/sstephenson/rbenv.git
+        dest: /home/vagrant/.rbenv
+    - name: install ruby-build
+      git:
+        repo: https://github.com/sstephenson/ruby-build.git
+        dest: /home/vagrant/.rbenv/plugins/ruby-build
+    - name: path setup
+      lineinfile: >-
+        dest='/home/vagrant/.bashrc'
+        state=present
+        regexp='^export PATH.*rbenv.bin'
+        line='export PATH="$HOME/.rbenv/bin:$PATH"'
+    - name: rbenv init
+      lineinfile: >-
+        dest='/home/vagrant/.bashrc'
+        state=present
+        regexp='eval.*rbenv init'
+        line='eval "$(rbenv init -)"'
+    - name: install ruby 2.5.1
+      shell: /bin/bash -lc "if ! rbenv version | grep -q ^2.5.1 ; then rbenv install -v 2.5.1 && rbenv rehash && rbenv global 2.5.1 ; fi"
+      ignore_errors: true
